@@ -57,7 +57,7 @@ void createAccount();
 // all the subfunctions of create account here
 string saltGenerator(string &, string &);
 void writeToSaltFile();
-void userClearance();
+string userClearance();
 void writeToShadowFile();
 void printStrongNess(string &);
 
@@ -215,7 +215,7 @@ void printStrongNess(string &input)
     cout << "Weak" << endl;
 }
 
-void userClearance()
+string userClearance()
 {
 again:
   cout << "User clearance (0 or 1 or 2 or 3) : ";
@@ -230,6 +230,7 @@ again:
   {
     cout << "User clearance is : " << uClearance << "\n";
   }
+  return uClearance;
 }
 
 void login()
