@@ -50,6 +50,8 @@ string fileName;
 string fileClearence;
 string fileNameTrimmed;
 string fileClearanceTrimmed;
+string storedShadow;
+string storedClearence;
 
 // Function Prototypes here
 int mainMenu(int);
@@ -68,7 +70,8 @@ string generateLoginPwSaltHash(string &, string &);
 void checkPassSaltHash();
 void fileSystem();
 void createFile();
-void readFile(string&);
+void readFile();
+void listFile();
 void promptExit();
 
 /*************************************************  START OF MAIN FUNCTION *************************************************/
@@ -277,8 +280,7 @@ string generateLoginPwSaltHash(string &, string &)
 void checkPassSaltHash()
 {
   string line;
-  string storedShadow;
-  string storedClearence;
+
   bool found = false;
 
   ifstream shadowFile;
@@ -336,13 +338,11 @@ void fileSystem()
     switch (choice)
     {
     case 'C':
-      cout << "Create file place holder.\n";
       createFile();
       break;
 
     case 'R':
-      cout << "user clearance : " << uClearance << "\n";
-      readFile(uClearance);
+      readFile();
       break;
 
     case 'W':
@@ -350,7 +350,7 @@ void fileSystem()
       break;
 
     case 'L':
-      cout << "List file place holder.\n";
+      listFile();
       break;
 
     case 'S':
@@ -386,6 +386,7 @@ void createFile()
       cout << fileNameTrimmed << "\n";
       cout << fileClearanceTrimmed << "\n";
       found = true;
+      break;
     }
   }
   inFile.close();
@@ -408,7 +409,7 @@ void createFile()
   }
 }
 
-void readFile(string&)
+void readFile()
 {
   string line;
   bool found = false;
@@ -425,29 +426,30 @@ void readFile(string&)
     size_t pos = line.find(":");
     fileNameTrimmed = line.substr(0, pos);
     fileClearanceTrimmed = line.substr(pos + 1);
-    if (fileNameTrimmed == fileName || fileClearanceTrimmed == fileClearence)
+    if (fileNameTrimmed == fileName)
     {
-      // cout << fileNameTrimmed << "\n";
-      // cout << fileClearanceTrimmed << "\n";
+      cout << fileNameTrimmed << "\n";
+      cout << fileClearanceTrimmed << "\n";
       found = true;
+      break;
     }
   }
   inFile.close();
   if (found == true)
   {
-    if (uClearance == fileClearanceTrimmed)
+    if (storedClearence >= fileClearanceTrimmed)
     {
-      cout << "user clearance : " << uClearance << "\n";
-      cout << "file clearance : " << fileClearence << "\n";
+      // cout << "user clearance : " << storedClearence << "\n";
+      // cout << "file clearance : " << fileClearanceTrimmed << "\n";
       cout << "You have successfully read the file!\n\n";
     }
-    else if (uClearance < fileClearanceTrimmed)
+    else if (storedClearence < fileClearanceTrimmed)
     {
       cout << "You do not have necessary permission to read the file!\n\n";
     }
     
   }
-  else if (found == false)
+  else
   {
     cout << "This file does not exist. Please input again.\n\n";
   }
@@ -469,4 +471,21 @@ void promptExit()
     cout << "Going back to Main Menu.\n\n";
     fileSystem();
   }
+}
+
+void listFile()
+{
+  string line;
+  bool found = false;
+  ifstream inFile;
+  cout << "\n############### List of existing files ###############\n";
+  inFile.open("fileSimulation.txt");
+  while (inFile.good())
+  {
+    getline(inFile, line);
+    size_t pos = line.find(":");
+    fileNameTrimmed = line.substr(0, pos);
+    cout << fileNameTrimmed << "\n";
+}
+inFile.close();
 }
