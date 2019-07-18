@@ -1,5 +1,6 @@
 # Bell_Lapadula_Simulation
-Bell Lapadula Access Control model simulation in CPP
+The Bell–LaPadula Model (BLP) is a state machine model used for enforcing access control in government and military applications. The model uses multi security level where higher level users cannot write downwards and lower level users cannot read up.
+This project is a simulation of BLP with Unix style security in CPP.
 
 ## Getting started
 There are 3 files included salt,shadow and filesimulation text files to simulate Unix Access Control and file system. 
