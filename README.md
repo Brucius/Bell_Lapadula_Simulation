@@ -1,5 +1,5 @@
 # Bell_Lapadula_Simulation
-The Bell–LaPadula Model (BLP) is a state machine model used for enforcing access control in government and military applications. The model uses multi security level where higher level users cannot write downwards and lower level users cannot read up.
+The Bell–LaPadula Model (BLP) is a state machine model used for enforcing access control in government and military applications. The model uses multi security level where higher level users cannot write downwards and lower level users cannot read upwards.
 This project is a simulation of BLP with Unix style security in CPP.
 
 ## Getting started
