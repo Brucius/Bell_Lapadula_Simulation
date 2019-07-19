@@ -71,6 +71,7 @@ void checkPassSaltHash();
 void fileSystem();
 void createFile();
 void readFile();
+void writeFile();
 void listFile();
 void promptExit();
 
@@ -346,7 +347,7 @@ void fileSystem()
       break;
 
     case 'W':
-      cout << "Write file place holder.\n";
+      writeFile();
       break;
 
     case 'L':
@@ -447,7 +448,6 @@ void readFile()
     {
       cout << "You do not have necessary permission to read the file!\n\n";
     }
-    
   }
   else
   {
@@ -455,21 +455,46 @@ void readFile()
   }
 }
 
-void promptExit()
+void writeFile()
 {
-  char uInput;
-  cout << "Shut down the FileSystem? (Y)es or (N)o : ";
-  cin >> uInput;
+  string line;
+  bool found = false;
+  ifstream inFile;
+
+  cout << "\nPlease enter Filename to read : ";
+  cin >> fileName;
   cin.ignore();
-  uInput = toupper(uInput);
-  if (uInput == 'Y')
+  transform(fileName.begin(), fileName.end(), fileName.begin(), ptr_fun<int, int>(tolower));
+  inFile.open("fileSimulation.txt");
+  while (inFile.good())
   {
-    cout << "Exited File System Successfully.\n";
+    getline(inFile, line);
+    size_t pos = line.find(":");
+    fileNameTrimmed = line.substr(0, pos);
+    fileClearanceTrimmed = line.substr(pos + 1);
+    if (fileNameTrimmed == fileName)
+    {
+      // cout << fileNameTrimmed << "\n";
+      // cout << fileClearanceTrimmed << "\n";
+      found = true;
+      break;
+    }
+  }
+  inFile.close();
+  if (found == true)
+  {
+    if (storedClearence > fileClearanceTrimmed)
+    {
+      cout << "You are not allowed to write to the file\n\n";
+    }
+    else if (storedClearence <= fileClearanceTrimmed)
+    {
+      cout << "You have successfully written to the file!\n\n";
+    }
   }
   else
   {
-    cout << "Going back to Main Menu.\n\n";
-    fileSystem();
+    cout << "This file does not exist. Please input again\n\n";
   }
 }
 
@@ -488,4 +513,22 @@ void listFile()
     cout << fileNameTrimmed << "\n";
 }
 inFile.close();
+}
+
+void promptExit()
+{
+  char uInput;
+  cout << "Shut down the FileSystem? (Y)es or (N)o : ";
+  cin >> uInput;
+  cin.ignore();
+  uInput = toupper(uInput);
+  if (uInput == 'Y')
+  {
+    cout << "Exited File System Successfully.\n";
+  }
+  else
+  {
+    cout << "Going back to Main Menu.\n\n";
+    fileSystem();
+  }
 }
