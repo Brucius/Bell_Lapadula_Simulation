@@ -281,7 +281,6 @@ string generateLoginPwSaltHash(string &, string &)
 void checkPassSaltHash()
 {
   string line;
-
   bool found = false;
 
   ifstream shadowFile;
@@ -356,6 +355,7 @@ void fileSystem()
 
     case 'S':
       cout << "Save file place holder.\n";
+      // function()
       break;
 
     case 'E':
