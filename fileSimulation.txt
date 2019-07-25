@@ -1,3 +1,0 @@
-alpha:0
-secret:1
-textytext:3

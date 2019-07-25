@@ -52,6 +52,7 @@ string fileNameTrimmed;
 string fileClearanceTrimmed;
 string storedShadow;
 string storedClearence;
+vector<string> fileStore;
 
 // Function Prototypes here
 int mainMenu(int);
@@ -61,7 +62,7 @@ string saltGenerator(string &, string &);
 void writeToSaltFile();
 string userClearance();
 void writeToShadowFile();
-void printStrongNess(string &);
+// void printStrongNess(string &);
 
 // Login function
 void login();
@@ -69,10 +70,12 @@ void uNameLoginCheck();
 string generateLoginPwSaltHash(string &, string &);
 void checkPassSaltHash();
 void fileSystem();
+void retriveFileStore(vector<string> &);
 void createFile();
 void readFile();
 void writeFile();
 void listFile();
+void saveFile();
 void promptExit();
 
 /*************************************************  START OF MAIN FUNCTION *************************************************/
@@ -81,11 +84,13 @@ int main(int argc, char *argv[])
   if (argc == 2 && string(argv[1]) == "-i")
   {
     cout << "Account Creation.\n";
+    cout << "This is a test = " << md5("This is a test") << "\n";
     createAccount();
   }
   else if (argc == 1)
   {
     cout << "Account Login.\n";
+    cout << "This is a test = " << md5("This is a test") << "\n";
     login();
   }
   return 0;
@@ -93,12 +98,15 @@ int main(int argc, char *argv[])
 /*************************************************  END OF MAIN FUNCTION *************************************************/
 
 /************************************************* Function Implementations *************************************************/
+
+/* Creating account function. This function will check for existing user and password upon user input to create an account. 
+This function can be invoked by FileSystem -i initialization */
 void createAccount()
 {
   cout << "Username : ";
   cin >> uName;
   cin.ignore();
-  transform(uName.begin(),uName.end(),uName.begin(), ptr_fun <int,int> (tolower));
+  transform(uName.begin(), uName.end(), uName.begin(), ptr_fun<int, int>(tolower));
   string line;
   ifstream saltFile;
   bool found = false;
@@ -119,6 +127,7 @@ void createAccount()
 
   if (found == false)
   {
+  again:
     do
     {
       cout << "Password : ";
@@ -132,12 +141,47 @@ void createAccount()
         cout << "The passwords do not match. Please try again\n";
       }
     } while (pW != confirmPw);
-    transform(pW.begin(),pW.end(),pW.begin(), ptr_fun <int,int> (tolower));
-    saltGenerator(uName, pW);
-    userClearance();
-    writeToSaltFile();
-    writeToShadowFile();
-    printStrongNess(pW);
+    // transform(pW.begin(), pW.end(), pW.begin(), ptr_fun<int, int>(tolower));
+    // saltGenerator(uName, pW);
+    // userClearance();
+    // writeToSaltFile();
+    // writeToShadowFile();
+    // printStrongNess(pW);
+    int n = pW.length();
+    // Checking lower alphabet in string
+    bool hasLower = false, hasUpper = false;
+    bool hasDigit = false, specialChar = false;
+    string normalChars = "abcdefghijklmnopqrstu"
+                         "vwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 ";
+
+    for (int i = 0; i < n; i++)
+    {
+      if (islower(pW[i]))
+        hasLower = true;
+      if (isupper(pW[i]))
+        hasUpper = true;
+      if (isdigit(pW[i]))
+        hasDigit = true;
+
+      size_t special = pW.find_first_not_of(normalChars);
+      if (special != string::npos)
+        specialChar = true;
+    }
+    // Strength of password
+    if (hasLower && hasUpper && hasDigit &&
+        specialChar && (n >= 8))
+    {
+      cout << "Password strength strong, proceeding to create account." << endl;
+      saltGenerator(uName, pW);
+      userClearance();
+      writeToSaltFile();
+      writeToShadowFile();
+    }
+    else
+    {
+      cout << "Password strength weak, pleaset try again." << endl;
+      goto again;
+    }
   }
   else
   {
@@ -145,6 +189,7 @@ void createAccount()
   }
 }
 
+/* This function generates 8 random numbers and append it behind both username and password. */
 string saltGenerator(string &, string &)
 {
   srand(time(NULL));
@@ -160,6 +205,7 @@ string saltGenerator(string &, string &)
   return hashSaltedPw;
 }
 
+/* This function creates the username with salt value into salt.txt file. */
 void writeToSaltFile()
 {
   //Bob:12345678
@@ -171,6 +217,7 @@ void writeToSaltFile()
   cout << "Successfully written into salt file : " << salteduName << "\n";
 }
 
+/* This function hashes salted password and write to shadow.txt file */
 void writeToShadowFile()
 {
   //Bob:dd2da44f4437d529a80809932cb3da83:1
@@ -183,42 +230,7 @@ void writeToShadowFile()
   cout << "Successfully written into shadow file : " << saltHash;
 }
 
-void printStrongNess(string &input)
-{
-  int n = input.length();
-
-  // Checking lower alphabet in string
-  bool hasLower = false, hasUpper = false;
-  bool hasDigit = false, specialChar = false;
-  string normalChars = "abcdefghijklmnopqrstu"
-                       "vwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 ";
-
-  for (int i = 0; i < n; i++)
-  {
-    if (islower(input[i]))
-      hasLower = true;
-    if (isupper(input[i]))
-      hasUpper = true;
-    if (isdigit(input[i]))
-      hasDigit = true;
-
-    size_t special = input.find_first_not_of(normalChars);
-    if (special != string::npos)
-      specialChar = true;
-  }
-
-  // Strength of password
-  cout << "Strength of password : ";
-  if (hasLower && hasUpper && hasDigit &&
-      specialChar && (n >= 8))
-    cout << "Strong" << endl;
-  else if ((hasLower || hasUpper) &&
-           specialChar && (n >= 6))
-    cout << "Moderate" << endl;
-  else
-    cout << "Weak" << endl;
-}
-
+/* This function checks for valid security clearance level */
 string userClearance()
 {
 again:
@@ -237,6 +249,8 @@ again:
   return uClearance;
 }
 
+/* This function checks for existing username and password hashes from user input to validate successful logins.
+Can be invoked by FileSystem. */
 void login()
 {
   string line;
@@ -244,7 +258,7 @@ void login()
   cout << "Username : ";
   cin >> uName;
   cin.ignore();
-  transform(uName.begin(),uName.end(),uName.begin(), ptr_fun <int,int> (tolower));
+  transform(uName.begin(), uName.end(), uName.begin(), ptr_fun<int, int>(tolower));
   cout << "Password : ";
   cin >> pW;
   cin.ignore();
@@ -266,11 +280,26 @@ void login()
     }
   }
   saltFile.close();
-
+  retriveFileStore(fileStore);
   generateLoginPwSaltHash(pW, loginSalt);
   checkPassSaltHash();
 }
 
+/* This function reads in the existing file store from the fileSimulation.txt and stores it in a vector */
+void retriveFileStore(vector<string> &fileVector)
+{
+  string line;
+  ifstream file;
+  file.open("fileSimulation.txt");
+  while (file.good())
+  {
+    getline(file, line);
+    fileVector.push_back(line);
+  }
+  file.close();
+}
+
+/* This function generates login hash from user input to check for existing hasehd salted password. */
 string generateLoginPwSaltHash(string &, string &)
 {
   string loginSaltedPass = pW + loginSalt;
@@ -278,6 +307,7 @@ string generateLoginPwSaltHash(string &, string &)
   return loginHashSaltPass;
 }
 
+/* This function checks for the hashed salted password returned from the generateLoginPwSaltHash */
 void checkPassSaltHash()
 {
   string line;
@@ -292,7 +322,7 @@ void checkPassSaltHash()
     storedShadow = line.substr(pos + 1);
     size_t pos2 = storedShadow.find(":");
     storedShadow = storedShadow.substr(0, pos2);
-    
+
     storedClearence = line.substr(pos + 1);
     size_t pos3 = storedClearence.find(":");
     storedClearence = storedClearence.substr(pos3 + 1);
@@ -300,8 +330,6 @@ void checkPassSaltHash()
 
     if (loginHashSaltPass == storedShadow)
     {
-      // cout << "this is hashed " << loginHashSaltPass << "\n";
-      // cout << "\n this is stored " << storedShadow << "\n";
       found = true;
       break;
     }
@@ -324,6 +352,7 @@ void checkPassSaltHash()
   }
 }
 
+/* Major main menu function for File System after successful login. */
 void fileSystem()
 {
   string exitProgram = "";
@@ -338,7 +367,15 @@ void fileSystem()
     switch (choice)
     {
     case 'C':
+      for (int i = 0; i < fileStore.size(); i++)
+      {
+        cout << fileStore[i] << "\n";
+      }
       createFile();
+      for (int i = 0; i < fileStore.size(); i++)
+      {
+        cout << fileStore[i] << "\n";
+      }
       break;
 
     case 'R':
@@ -354,8 +391,7 @@ void fileSystem()
       break;
 
     case 'S':
-      cout << "Save file place holder.\n";
-      // function()
+      saveFile();
       break;
 
     case 'E':
@@ -365,6 +401,7 @@ void fileSystem()
   } while (exitProgram == "");
 }
 
+/* Implementation of create file record with no Write Down BLP model */
 void createFile()
 {
   string line;
@@ -382,10 +419,8 @@ void createFile()
     size_t pos = line.find(":");
     fileNameTrimmed = line.substr(0, pos);
     fileClearanceTrimmed = line.substr(pos + 1);
-    if (fileNameTrimmed == fileName || fileClearanceTrimmed == fileClearence)
+    if (fileNameTrimmed == fileName)
     {
-      cout << fileNameTrimmed << "\n";
-      cout << fileClearanceTrimmed << "\n";
       found = true;
       break;
     }
@@ -396,20 +431,26 @@ void createFile()
   {
     cout << "File already exists. Please try creating again.\n\n";
   }
-  else if (found == false)
+  else
   {
+  again:
     cout << "Security level (0 or 1 or 2 or 3) : ";
     cin >> fileClearence;
     cin.ignore();
-    ofstream writeFile;
-    writeFile.open("fileSimulation.txt", ios::app);
-    string writer = fileName + ":" + fileClearence + "\n";
-    writeFile << writer;
-    writeFile.close();
-    cout << "Successfully written into file : " << writer << "\n\n";
+    if (storedClearence <= fileClearence)
+    {
+      fileStore.push_back(fileName + ":" + fileClearence);
+      cout << "Successfully Created File!";
+    }
+    else if (storedClearence > fileClearence)
+    {
+      cout << "Your clearance level " << storedClearence << " is not allowed to write a file of " << fileClearence << " level.\n";
+      goto again;
+    }
   }
 }
 
+/* Implementation of no read up BLP model for read file. */
 void readFile()
 {
   string line;
@@ -420,13 +461,12 @@ void readFile()
   cin >> fileName;
   cin.ignore();
   transform(fileName.begin(), fileName.end(), fileName.begin(), ptr_fun<int, int>(tolower));
-  inFile.open("fileSimulation.txt");
-  while (inFile.good())
+  for (int i = 0; i < fileStore.size(); i++)
   {
-    getline(inFile, line);
-    size_t pos = line.find(":");
-    fileNameTrimmed = line.substr(0, pos);
-    fileClearanceTrimmed = line.substr(pos + 1);
+    // cout << fileStore[i] << "\n";
+    size_t pos = fileStore[i].find(":");
+    fileNameTrimmed = fileStore[i].substr(0, pos); // which one to use?
+    fileClearanceTrimmed = fileStore[i].substr(pos + 1);
     if (fileNameTrimmed == fileName)
     {
       cout << fileNameTrimmed << "\n";
@@ -435,13 +475,11 @@ void readFile()
       break;
     }
   }
-  inFile.close();
+
   if (found == true)
   {
     if (storedClearence >= fileClearanceTrimmed)
     {
-      // cout << "user clearance : " << storedClearence << "\n";
-      // cout << "file clearance : " << fileClearanceTrimmed << "\n";
       cout << "You have successfully read the file!\n\n";
     }
     else if (storedClearence < fileClearanceTrimmed)
@@ -455,32 +493,31 @@ void readFile()
   }
 }
 
+/* Implementation of no Write Down BLP model */
 void writeFile()
 {
   string line;
   bool found = false;
   ifstream inFile;
 
-  cout << "\nPlease enter Filename to read : ";
+  cout << "\nPlease enter Filename to write : ";
   cin >> fileName;
   cin.ignore();
   transform(fileName.begin(), fileName.end(), fileName.begin(), ptr_fun<int, int>(tolower));
-  inFile.open("fileSimulation.txt");
-  while (inFile.good())
+  for (int i = 0; i < fileStore.size(); i++)
   {
-    getline(inFile, line);
-    size_t pos = line.find(":");
-    fileNameTrimmed = line.substr(0, pos);
-    fileClearanceTrimmed = line.substr(pos + 1);
+    // cout << fileStore[i] << "\n";
+    size_t pos = fileStore[i].find(":");
+    fileNameTrimmed = fileStore[i].substr(0, pos);
+    fileClearanceTrimmed = fileStore[i].substr(pos + 1);
     if (fileNameTrimmed == fileName)
     {
-      // cout << fileNameTrimmed << "\n";
-      // cout << fileClearanceTrimmed << "\n";
+      cout << fileNameTrimmed << "\n";
+      cout << fileClearanceTrimmed << "\n";
       found = true;
       break;
     }
   }
-  inFile.close();
   if (found == true)
   {
     if (storedClearence > fileClearanceTrimmed)
@@ -498,23 +535,34 @@ void writeFile()
   }
 }
 
+/* Implementation of file listing */
 void listFile()
 {
   string line;
   bool found = false;
   ifstream inFile;
-  cout << "\n############### List of existing files ###############\n";
-  inFile.open("fileSimulation.txt");
-  while (inFile.good())
+  cout << "\n############### List of existing files and clearance ###############\n";
+  for (int i = 0; i < fileStore.size(); i++)
   {
-    getline(inFile, line);
-    size_t pos = line.find(":");
-    fileNameTrimmed = line.substr(0, pos);
-    cout << fileNameTrimmed << "\n";
-}
-inFile.close();
+    cout << fileStore[i] << "\n";
+  }
 }
 
+/* Implementation of save file function */
+void saveFile()
+{
+  ofstream myFile;
+  myFile.open("FileSimulation.txt", ios::out | ios::trunc);
+  for (int i = 0; i < fileStore.size(); i++)
+  {
+    myFile << fileStore[i] << "\n";
+  }
+  myFile.close();
+  cout << "Successfully saved file!\n";
+  cout << "current number of files : " << fileStore.size();
+}
+
+/* Implementation of exit function */
 void promptExit()
 {
   char uInput;
