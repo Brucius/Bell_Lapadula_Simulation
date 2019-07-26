@@ -294,7 +294,10 @@ void retriveFileStore(vector<string> &fileVector)
   while (file.good())
   {
     getline(file, line);
-    fileVector.push_back(line);
+    if (line != "")
+    {
+      fileVector.push_back(line);
+    }
   }
   file.close();
 }
@@ -343,7 +346,7 @@ void checkPassSaltHash()
     cout << "hashing......\n";
     cout << "hash value : " << loginHashSaltPass << "\n";
     cout << "Authentication for user " << uName << " complete.\n";
-    cout << "The clearence for " << uName << " is " << storedClearence << "\n\n\n";
+    cout << "The clearence for " << uName << " is " << storedClearence << "\n\n";
     fileSystem();
   }
   else
@@ -359,7 +362,7 @@ void fileSystem()
   do
   {
     char choice;
-    cout << "Options: (C)reate, (R)ead, (W)rite, (L)ist, (S)ave or (E)xit.\n";
+    cout << "\nOptions: (C)reate, (R)ead, (W)rite, (L)ist, (S)ave or (E)xit.\n";
     cout << "Please enter your option : ";
     cin >> choice;
     cin.ignore();
@@ -367,15 +370,7 @@ void fileSystem()
     switch (choice)
     {
     case 'C':
-      for (int i = 0; i < fileStore.size(); i++)
-      {
-        cout << fileStore[i] << "\n";
-      }
       createFile();
-      for (int i = 0; i < fileStore.size(); i++)
-      {
-        cout << fileStore[i] << "\n";
-      }
       break;
 
     case 'R':
@@ -465,12 +460,12 @@ void readFile()
   {
     // cout << fileStore[i] << "\n";
     size_t pos = fileStore[i].find(":");
-    fileNameTrimmed = fileStore[i].substr(0, pos); // which one to use? NEED TO FIX THIS
+    fileNameTrimmed = fileStore[i].substr(0, pos);
     fileClearanceTrimmed = fileStore[i].substr(pos + 1);
     if (fileNameTrimmed == fileName)
     {
-      cout << fileNameTrimmed << "\n";
-      cout << fileClearanceTrimmed << "\n";
+      // cout << fileNameTrimmed << "\n";
+      // cout << fileClearanceTrimmed << "\n";
       found = true;
       break;
     }
@@ -512,8 +507,8 @@ void writeFile()
     fileClearanceTrimmed = fileStore[i].substr(pos + 1);
     if (fileNameTrimmed == fileName)
     {
-      cout << fileNameTrimmed << "\n";
-      cout << fileClearanceTrimmed << "\n";
+      // cout << fileNameTrimmed << "\n";
+      // cout << fileClearanceTrimmed << "\n";
       found = true;
       break;
     }
@@ -559,8 +554,8 @@ void saveFile()
     myFile << fileStore[i] << "\n";
   }
   myFile.close();
-  cout << "Successfully saved file!\n";
-  cout << "current number of files : " << fileStore.size() << "\n";
+  cout << "Successfully saved file!\n\n";
+  cout << "Current number of files : " << fileStore.size() << "\n";
 }
 
 /* Implementation of exit function */

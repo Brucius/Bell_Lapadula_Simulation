@@ -9,7 +9,7 @@ There are 3 files included salt,shadow and filesimulation text files to simulate
 3. Records of files are stored in file simulation together with security clearance to simulate BLP model.
 
 ## To compile (GNU compiler)
-```g++ main.cpp md5.cpp -o FileSystem```
+```g++ -std=c++11 main.cpp md5.cpp -o FileSystem```
 
 ## To Initialise and create an account
 ```./FileSystem -i```
