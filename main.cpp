@@ -1,6 +1,6 @@
 // The MIT License (MIT)
 
-// Copyright (c) 2019 OAKER MIN
+// Copyright (c) 2019 OAKER MIN (UOW Student ID - 6353484)
 
 //  Permission is hereby granted, free of charge, to any person obtaining a
 //  copy of this software and associated documentation files (the "Software"),
