@@ -285,12 +285,12 @@ void login()
   checkPassSaltHash();
 }
 
-/* This function reads in the existing file store from the fileSimulation.txt and stores it in a vector */
+/* This function reads in the existing file store from the FileStore.txt and stores it in a vector */
 void retriveFileStore(vector<string> &fileVector)
 {
   string line;
   ifstream file;
-  file.open("fileSimulation.txt");
+  file.open("FileStore.txt");
   while (file.good())
   {
     getline(file, line);
@@ -412,7 +412,7 @@ void createFile()
   cin >> fileName;
   cin.ignore();
 
-  inFile.open("fileSimulation.txt");
+  inFile.open("FileStore.txt");
   while (inFile.good())
   {
     getline(inFile, line);
@@ -444,7 +444,7 @@ void createFile()
     }
     else if (storedClearence > fileClearence)
     {
-      cout << "Your clearance level " << storedClearence << " is not allowed to write a file of " << fileClearence << " level.\n";
+      cout << "Your clearance level " << storedClearence << " is not allowed to write a file of level " << fileClearence << "\n";
       goto again;
     }
   }
@@ -465,7 +465,7 @@ void readFile()
   {
     // cout << fileStore[i] << "\n";
     size_t pos = fileStore[i].find(":");
-    fileNameTrimmed = fileStore[i].substr(0, pos); // which one to use?
+    fileNameTrimmed = fileStore[i].substr(0, pos); // which one to use? NEED TO FIX THIS
     fileClearanceTrimmed = fileStore[i].substr(pos + 1);
     if (fileNameTrimmed == fileName)
     {
@@ -546,20 +546,21 @@ void listFile()
   {
     cout << fileStore[i] << "\n";
   }
+  cout << "\n";
 }
 
 /* Implementation of save file function */
 void saveFile()
 {
   ofstream myFile;
-  myFile.open("FileSimulation.txt", ios::out | ios::trunc);
+  myFile.open("FileStore.txt", ios::out | ios::trunc);
   for (int i = 0; i < fileStore.size(); i++)
   {
     myFile << fileStore[i] << "\n";
   }
   myFile.close();
   cout << "Successfully saved file!\n";
-  cout << "current number of files : " << fileStore.size();
+  cout << "current number of files : " << fileStore.size() << "\n";
 }
 
 /* Implementation of exit function */
