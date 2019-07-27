@@ -1,5 +1,0 @@
-brucefile:3
-youngfile:2
-chekfile:1
-ronald:0
-bfile:3

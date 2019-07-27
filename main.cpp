@@ -62,6 +62,7 @@ string saltGenerator(string &, string &);
 void writeToSaltFile();
 string userClearance();
 void writeToShadowFile();
+string removeSpecialChar(string &);
 // void printStrongNess(string &);
 
 // Login function
@@ -107,6 +108,7 @@ void createAccount()
   cin >> uName;
   cin.ignore();
   transform(uName.begin(), uName.end(), uName.begin(), ptr_fun<int, int>(tolower));
+  removeSpecialChar(uName);
   string line;
   ifstream saltFile;
   bool found = false;
@@ -228,6 +230,18 @@ void writeToShadowFile()
   shadowFile << saltHash;
   shadowFile.close();
   cout << "Successfully written into shadow file : " << saltHash;
+}
+
+string removeSpecialChar(string & line)
+{
+  for (int i = 0; i < line.size(); ++i)
+  {
+    if (!((line[i] >= 'a' && line[i] <= 'z') || (line[i] >= 'A' && line[i] <= 'Z')))
+    {
+      line[i] = '\0';
+    }
+  }
+  return line;
 }
 
 /* This function checks for valid security clearance level */
