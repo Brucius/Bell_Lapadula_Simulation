@@ -62,7 +62,6 @@ string saltGenerator(string &, string &);
 void writeToSaltFile();
 string userClearance();
 void writeToShadowFile();
-string removeSpecialChar(string &);
 // void printStrongNess(string &);
 
 // Login function
@@ -104,90 +103,100 @@ int main(int argc, char *argv[])
 This function can be invoked by FileSystem -i initialization */
 void createAccount()
 {
+enterUsernameAgain:
   cout << "Username : ";
   cin >> uName;
   cin.ignore();
-  transform(uName.begin(), uName.end(), uName.begin(), ptr_fun<int, int>(tolower));
-  removeSpecialChar(uName);
-  string line;
-  ifstream saltFile;
-  bool found = false;
-
-  saltFile.open("salt.txt");
-  while (saltFile.good())
+  //removeSpecialChar(uName);
+  size_t findColon = uName.find(":");
+  if (findColon == string::npos)
   {
-    getline(saltFile, line);
-    size_t pos = line.find(":");
-    storedUName = line.substr(0, pos);
-    if (storedUName == uName)
-    {
-      found = true;
-      break;
-    }
-  }
-  saltFile.close();
+    transform(uName.begin(), uName.end(), uName.begin(), ptr_fun<int, int>(tolower));
+    string line;
+    ifstream saltFile;
+    bool found = false;
 
-  if (found == false)
-  {
-  again:
-    do
+    saltFile.open("salt.txt");
+    while (saltFile.good())
     {
-      cout << "Password : ";
-      cin >> pW;
-      cin.ignore();
-      cout << "Confirm Password : ";
-      cin >> confirmPw;
-      cin.ignore();
-      if (pW != confirmPw)
+      getline(saltFile, line);
+      size_t pos = line.find(":");
+      storedUName = line.substr(0, pos);
+      if (storedUName == uName)
       {
-        cout << "The passwords do not match. Please try again\n";
+        found = true;
+        break;
       }
-    } while (pW != confirmPw);
-    // transform(pW.begin(), pW.end(), pW.begin(), ptr_fun<int, int>(tolower));
-    // saltGenerator(uName, pW);
-    // userClearance();
-    // writeToSaltFile();
-    // writeToShadowFile();
-    // printStrongNess(pW);
-    int n = pW.length();
-    // Checking lower alphabet in string
-    bool hasLower = false, hasUpper = false;
-    bool hasDigit = false, specialChar = false;
-    string normalChars = "abcdefghijklmnopqrstu"
-                         "vwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 ";
-
-    for (int i = 0; i < n; i++)
-    {
-      if (islower(pW[i]))
-        hasLower = true;
-      if (isupper(pW[i]))
-        hasUpper = true;
-      if (isdigit(pW[i]))
-        hasDigit = true;
-
-      size_t special = pW.find_first_not_of(normalChars);
-      if (special != string::npos)
-        specialChar = true;
     }
-    // Strength of password
-    if (hasLower && hasUpper && hasDigit &&
-        specialChar && (n >= 8))
+    saltFile.close();
+
+    if (found == false)
     {
-      cout << "Password strength strong, proceeding to create account." << endl;
-      saltGenerator(uName, pW);
-      userClearance();
-      writeToSaltFile();
-      writeToShadowFile();
+    again:
+      do
+      {
+        cout << "Password : ";
+        cin >> pW;
+        cin.ignore();
+        cout << "Confirm Password : ";
+        cin >> confirmPw;
+        cin.ignore();
+        if (pW != confirmPw)
+        {
+          cout << "The passwords do not match. Please try again\n";
+        }
+      } while (pW != confirmPw);
+      // transform(pW.begin(), pW.end(), pW.begin(), ptr_fun<int, int>(tolower));
+      // saltGenerator(uName, pW);
+      // userClearance();
+      // writeToSaltFile();
+      // writeToShadowFile();
+      // printStrongNess(pW);
+      int n = pW.length();
+      // Checking lower alphabet in string
+      bool hasLower = false, hasUpper = false;
+      bool hasDigit = false, specialChar = false;
+      string normalChars = "abcdefghijklmnopqrstu"
+                           "vwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 ";
+
+      for (int i = 0; i < n; i++)
+      {
+        if (islower(pW[i]))
+          hasLower = true;
+        if (isupper(pW[i]))
+          hasUpper = true;
+        if (isdigit(pW[i]))
+          hasDigit = true;
+
+        size_t special = pW.find_first_not_of(normalChars);
+        if (special != string::npos)
+          specialChar = true;
+      }
+      // Strength of password
+      if (hasLower && hasUpper && hasDigit &&
+          specialChar && (n >= 8))
+      {
+        cout << "Password strength strong, proceeding to create account." << endl;
+        saltGenerator(uName, pW);
+        userClearance();
+        writeToSaltFile();
+        writeToShadowFile();
+      }
+      else
+      {
+        cout << "Password strength weak, pleaset try again." << endl;
+        goto again;
+      }
     }
     else
     {
-      cout << "Password strength weak, pleaset try again." << endl;
-      goto again;
+      cout << "Username already exists. Exiting Program.\n";
     }
   }
   else
   {
-    cout << "Username already exists. Exiting Program.\n";
+    cout << "Username cannot contain :\n\n";
+    goto enterUsernameAgain;
   }
 }
 
@@ -230,18 +239,6 @@ void writeToShadowFile()
   shadowFile << saltHash;
   shadowFile.close();
   cout << "Successfully written into shadow file : " << saltHash;
-}
-
-string removeSpecialChar(string & line)
-{
-  for (int i = 0; i < line.size(); ++i)
-  {
-    if (!((line[i] >= 'a' && line[i] <= 'z') || (line[i] >= 'A' && line[i] <= 'Z')))
-    {
-      line[i] = '\0';
-    }
-  }
-  return line;
 }
 
 /* This function checks for valid security clearance level */
@@ -417,45 +414,56 @@ void createFile()
   bool found = false;
   ifstream inFile;
 
+enterFileNameAgain:
   cout << "Filename : ";
   cin >> fileName;
   cin.ignore();
-
-  inFile.open("FileStore.txt");
-  while (inFile.good())
+  size_t findColon = fileName.find(":");
+  if (findColon == string::npos)
   {
-    getline(inFile, line);
-    size_t pos = line.find(":");
-    fileNameTrimmed = line.substr(0, pos);
-    fileClearanceTrimmed = line.substr(pos + 1);
-    if (fileNameTrimmed == fileName)
+    transform(fileName.begin(), fileName.end(), fileName.begin(), ptr_fun<int, int>(tolower));
+
+    inFile.open("FileStore.txt");
+    while (inFile.good())
     {
-      found = true;
-      break;
+      getline(inFile, line);
+      size_t pos = line.find(":");
+      fileNameTrimmed = line.substr(0, pos);
+      fileClearanceTrimmed = line.substr(pos + 1);
+      if (fileNameTrimmed == fileName)
+      {
+        found = true;
+        break;
+      }
     }
-  }
-  inFile.close();
+    inFile.close();
 
-  if (found == true)
-  {
-    cout << "File already exists. Please try creating again.\n\n";
+    if (found == true)
+    {
+      cout << "File already exists. Please try creating again.\n\n";
+    }
+    else
+    {
+    again:
+      cout << "Security level (0 or 1 or 2 or 3) : ";
+      cin >> fileClearence;
+      cin.ignore();
+      if (storedClearence <= fileClearence)
+      {
+        fileStore.push_back(fileName + ":" + fileClearence);
+        cout << "Successfully Created File!";
+      }
+      else if (storedClearence > fileClearence)
+      {
+        cout << "Your clearance level " << storedClearence << " is not allowed to write a file of level " << fileClearence << "\n";
+        goto again;
+      }
+    }
   }
   else
   {
-  again:
-    cout << "Security level (0 or 1 or 2 or 3) : ";
-    cin >> fileClearence;
-    cin.ignore();
-    if (storedClearence <= fileClearence)
-    {
-      fileStore.push_back(fileName + ":" + fileClearence);
-      cout << "Successfully Created File!";
-    }
-    else if (storedClearence > fileClearence)
-    {
-      cout << "Your clearance level " << storedClearence << " is not allowed to write a file of level " << fileClearence << "\n";
-      goto again;
-    }
+    cout << "File name cannot contain :\n\n";
+    goto enterFileNameAgain;
   }
 }
 
